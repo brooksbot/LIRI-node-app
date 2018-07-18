@@ -9,7 +9,7 @@ var keys = require("./keys.js");
 var Twitter = require("twitter");
 
 // Import the Spotify npm package.
-var spotify = require("spotify");
+var spotify = require("node-spotify-api");
 
 // Import the request npm package.
 var request = require("request");
@@ -74,7 +74,7 @@ var getMyTweets = function() {
 
   var client = new Twitter(keys.twitterKeys);
 
-  var params = { screen_name: "cnn" };
+  var params = { screen_name: "barokov" };
   client.get("statuses/user_timeline", params, function(error, tweets, response) {
     if (!error) {
 
