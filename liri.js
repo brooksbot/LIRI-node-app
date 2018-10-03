@@ -1,7 +1,8 @@
-// Require/configure the environment keys/files
-
-require("dotenv").config();
+// DEPENDENCIES
 // =====================================
+// Require/configure the environment keys/files
+require("dotenv").config();
+
 // Import the Keys file
 var keys = require("./keys.js");
 
@@ -9,7 +10,7 @@ var keys = require("./keys.js");
 var Twitter = require("twitter");
 
 // Import the Spotify npm package.
-var spotify = require("node-spotify-api");
+var Spotify = require("node-spotify-api");
 
 // Import the request npm package.
 var request = require("request");
@@ -20,78 +21,74 @@ var fs = require("fs");
 // FUNCTIONS
 // =====================================
 
-// Writes to the log.txt file
-var writeToLog = function(data) {
-  fs.appendFile("log.txt", "\r\n\r\n");
-
-  fs.appendFile("log.txt", JSON.stringify(data), function(err) {
-
-    if (err) {
-      return console.log(err);
-    }
-
-    console.log("log.txt was updated!");
-  });
-};
-
-// Helper function that gets the artist name
 var getArtistNames = function(artist) {
   return artist.name;
 };
 
 // Function for running a Spotify search
 var getMeSpotify = function(songName) {
+  var spotify = new Spotify({
+    id: process.env.SPOTIFY_ID,
+    secret: process.env.SPOTIFY_SECRET,
+  });
 
-  if (songName === undefined) {
-    songName = "What's my age again";
+  // var newSpotify = new spotify(keys.spotify);
+  //   newSpotify.get() 
+  if (!songName) {
+    songName = "The Sign";
   }
 
-  spotify.search({ type: "track", query: songName }, function(err, data) {
+  spotify.search({
+    type: "track",
+    query: songName
+  }, function(err, data) {
     if (err) {
       console.log("Error occurred: " + err);
       return;
     }
 
     var songs = data.tracks.items;
-    var data = [];
 
     for (var i = 0; i < songs.length; i++) {
-      data.push({
-        "artist(s)": songs[i].artists.map(getArtistNames),
-        "song name: ": songs[i].name,
-        "preview song: ": songs[i].preview_url,
-        "album: ": songs[i].album.name
-      });
+      console.log(i);
+      console.log("artist(s): " + songs[i].artists.map(getArtistNames));
+      console.log("song name: " + songs[i].name);
+      console.log("preview song: " + songs[i].preview_url);
+      console.log("album: " + songs[i].album.name);
+      console.log("-----------------------------------");
     }
-
-    console.log(data);
-    writeToLog(data);
   });
 };
 
 // Function for running a Twitter Search
 var getMyTweets = function() {
-
-  var client = new Twitter(keys.twitterKeys);
-
-  var params = { screen_name: "barokov" };
-  client.get("statuses/user_timeline", params, function(error, tweets, response) {
-    if (!error) {
-
-      var data = [];
-
-      for (var i = 0; i < tweets.length; i++) {
-        data.push({
-          created_at: tweets[i].created_at,
-          text: tweets[i].text
-        });
+  
+  var client = new Twitter({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+  });
+  
+  var params = {
+    screen_name: "barokov",
+    count: 20
+  };
+    client.get("statuses/user_timeline", params, function(error, tweets, response) {
+      if (error) {
+        console.log("error!", error);
+        }
+      else {
+        for (var i = 0; i < tweets.length; i++) {
+          console.log(tweets[i].created_at);
+          console.log("");
+          console.log(tweets[i].text);
+        
       }
-
-      console.log(data);
-      writeToLog(data);
-    }
+    };
   });
 };
+
 
 // Function for running a Movie Search
 var getMeMovie = function(movieName) {
@@ -100,30 +97,26 @@ var getMeMovie = function(movieName) {
     movieName = "Mr Nobody";
   }
 
-  var urlHit = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=full&tomatoes=true&r=json";
+  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&r=json&tomatoes=true&apikey=trilogy";
 
-  request(urlHit, function(error, response, body) {
+  console.log(queryUrl);
+
+  request(queryUrl, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       var jsonData = JSON.parse(body);
 
-      var data = {
-        "Title:": jsonData.Title,
-        "Year:": jsonData.Year,
-        "Rated:": jsonData.Rated,
-        "IMDB Rating:": jsonData.imdbRating,
-        "Country:": jsonData.Country,
-        "Language:": jsonData.Language,
-        "Plot:": jsonData.Plot,
-        "Actors:": jsonData.Actors,
-        "Rotten Tomatoes Rating:": jsonData.tomatoRating,
-        "Rotton Tomatoes URL:": jsonData.tomatoURL
-      };
-
-      console.log(data);
-      writeToLog(data);
+      console.log("Title: " + jsonData.Title);
+      console.log("Year: " + jsonData.Year);
+      console.log("Rated: " + jsonData.Rated);
+      console.log("IMDB Rating: " + jsonData.imdbRating);
+      console.log("Country: " + jsonData.Country);
+      console.log("Language: " + jsonData.Language);
+      console.log("Plot: " + jsonData.Plot);
+      console.log("Actors: " + jsonData.Actors);
+      console.log("Rotten Tomatoes Rating: " + jsonData.tomatoRating);
+      console.log("Rotton Tomatoes URL: " + jsonData.tomatoURL);
     }
   });
-
 };
 
 // Function for running a command based on text file
@@ -135,7 +128,7 @@ var doWhatItSays = function() {
 
     if (dataArr.length === 2) {
       pick(dataArr[0], dataArr[1]);
-    }
+    } 
     else if (dataArr.length === 1) {
       pick(dataArr[0]);
     }
