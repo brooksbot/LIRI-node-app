@@ -19,3 +19,4 @@ Request
 We'll use Request to grab data from the OMDB API.
 
 DotEnv
+
