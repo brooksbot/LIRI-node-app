@@ -8,7 +8,7 @@ LIRI BOT will display your latest tweets, search for song data, and movie inform
 
 To retrieve the data that will power this app, we'll send requests to the Twitter, Spotify and OMDB APIs. 
 
-![](name-of-giphy.gif)
+![](LIRI-bot-2.gif)
 ![](name-of-giphy.gif)
 
 API's utilized:
